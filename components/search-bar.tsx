@@ -17,8 +17,9 @@ export function SearchBar() {
 
     // Validar que el término de búsqueda no esté vacío
     const trimmedTerm = searchTerm.trim()
+    const hasSearchTerm = trimmedTerm !== ""
 
-    if (trimmedTerm) {
+    if (hasSearchTerm) {
       // Codificar el término de búsqueda para la URL
       const encodedTerm = encodeURIComponent(trimmedTerm)
       // Navegar a la página de resultados

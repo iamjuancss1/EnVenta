@@ -16,13 +16,10 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
   const safeImages = images && images.length > 0 ? images : ["/placeholder.svg?height=600&width=600"]
 
   // Asegurarse de que selectedImage está dentro de los límites
-  let safeSelectedIndex = selectedImage
-  if (safeSelectedIndex >= safeImages.length) {
-    safeSelectedIndex = 0
-  }
-
+  const safeSelectedIndex = selectedImage >= safeImages.length ? 0 : selectedImage
   const currentImage = safeImages[safeSelectedIndex]
   const imageAlt = `${title} - Imagen ${safeSelectedIndex + 1}`
+  const hasMultipleImages = safeImages.length > 1
 
   return (
     <div className="space-y-4">
@@ -30,21 +27,18 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
         <Image src={currentImage || "/placeholder.svg"} alt={imageAlt} fill className="object-cover" priority />
       </div>
 
-      {safeImages.length > 1 && (
+      {hasMultipleImages && (
         <div className="flex gap-2 overflow-auto pb-2">
           {safeImages.map((image, index) => {
             const isSelected = safeSelectedIndex === index
             const thumbnailAlt = `${title} - Miniatura ${index + 1}`
+            const thumbnailClasses = cn(
+              "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border",
+              isSelected && "ring-2 ring-primary",
+            )
 
             return (
-              <button
-                key={index}
-                className={cn(
-                  "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border",
-                  isSelected && "ring-2 ring-primary",
-                )}
-                onClick={() => setSelectedImage(index)}
-              >
+              <button key={index} className={thumbnailClasses} onClick={() => setSelectedImage(index)}>
                 <Image src={image || "/placeholder.svg"} alt={thumbnailAlt} fill className="object-cover" />
               </button>
             )

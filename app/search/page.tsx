@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft } from "lucide-react"
 import { getAllProducts } from "@/lib/data"
 import { Header } from "@/components/header"
+import type { Product } from "@/types/product"
 
 interface SearchPageProps {
   searchParams: {
@@ -19,7 +20,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
   const allProducts = getAllProducts() || []
 
   // Filtrar productos de manera segura
-  const filteredProducts = []
+  const filteredProducts: Product[] = []
 
   if (query && query.trim() !== "") {
     const lowerCaseQuery = query.toLowerCase()
@@ -31,11 +32,11 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
       const description = (product.description || "").toLowerCase()
       const categoryName = (product.category?.name || "").toLowerCase()
 
-      if (
-        title.includes(lowerCaseQuery) ||
-        description.includes(lowerCaseQuery) ||
-        categoryName.includes(lowerCaseQuery)
-      ) {
+      const matchesTitle = title.includes(lowerCaseQuery)
+      const matchesDescription = description.includes(lowerCaseQuery)
+      const matchesCategory = categoryName.includes(lowerCaseQuery)
+
+      if (matchesTitle || matchesDescription || matchesCategory) {
         filteredProducts.push(product)
       }
     }

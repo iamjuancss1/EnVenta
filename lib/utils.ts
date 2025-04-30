@@ -6,10 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number | null | undefined): string {
+  // Simplificación extrema para evitar cualquier problema con operadores
   if (price === null || price === undefined) {
     return "$0"
   }
 
-  // Formato simple para evitar problemas
-  return `$${price.toLocaleString("es-CO")}`
+  try {
+    return "$" + price.toLocaleString("es-CO")
+  } catch (error) {
+    return "$0"
+  }
 }

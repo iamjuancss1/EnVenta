@@ -17,51 +17,19 @@ import {
 export function MainCategories() {
   // Definir categorías con sus iconos y slugs
   const categories = [
-    { name: "Tecnología", slug: "tecnologia" },
-    { name: "Vehículos", slug: "vehiculos" },
-    { name: "Electrodomésticos", slug: "electrodomesticos" },
-    { name: "Hogar y Muebles", slug: "hogar-muebles" },
-    { name: "Supermercado", slug: "supermercado" },
-    { name: "Moda", slug: "moda" },
-    { name: "Juegos y Juguetes", slug: "juegos-juguetes" },
-    { name: "Bebés", slug: "bebes" },
-    { name: "Herramientas", slug: "herramientas" },
-    { name: "Alimentos y Bebidas", slug: "alimentos-bebidas" },
-    { name: "Deportes y Fitness", slug: "deportes-fitness" },
-    { name: "Arte y Artesanías", slug: "arte-artesanias" },
+    { name: "Tecnología", slug: "tecnologia", icon: <Smartphone className="h-6 w-6" /> },
+    { name: "Vehículos", slug: "vehiculos", icon: <Car className="h-6 w-6" /> },
+    { name: "Electrodomésticos", slug: "electrodomesticos", icon: <Tv className="h-6 w-6" /> },
+    { name: "Hogar y Muebles", slug: "hogar-muebles", icon: <HomeIcon className="h-6 w-6" /> },
+    { name: "Supermercado", slug: "supermercado", icon: <ShoppingBag className="h-6 w-6" /> },
+    { name: "Moda", slug: "moda", icon: <Shirt className="h-6 w-6" /> },
+    { name: "Juegos y Juguetes", slug: "juegos-juguetes", icon: <Gamepad2 className="h-6 w-6" /> },
+    { name: "Bebés", slug: "bebes", icon: <Baby className="h-6 w-6" /> },
+    { name: "Herramientas", slug: "herramientas", icon: <Wrench className="h-6 w-6" /> },
+    { name: "Alimentos y Bebidas", slug: "alimentos-bebidas", icon: <Utensils className="h-6 w-6" /> },
+    { name: "Deportes y Fitness", slug: "deportes-fitness", icon: <Dumbbell className="h-6 w-6" /> },
+    { name: "Arte y Artesanías", slug: "arte-artesanias", icon: <Palette className="h-6 w-6" /> },
   ]
-
-  // Renderizar los iconos de forma segura
-  const renderIcon = (slug: string) => {
-    switch (slug) {
-      case "tecnologia":
-        return <Smartphone className="h-6 w-6" />
-      case "vehiculos":
-        return <Car className="h-6 w-6" />
-      case "electrodomesticos":
-        return <Tv className="h-6 w-6" />
-      case "hogar-muebles":
-        return <HomeIcon className="h-6 w-6" />
-      case "supermercado":
-        return <ShoppingBag className="h-6 w-6" />
-      case "moda":
-        return <Shirt className="h-6 w-6" />
-      case "juegos-juguetes":
-        return <Gamepad2 className="h-6 w-6" />
-      case "bebes":
-        return <Baby className="h-6 w-6" />
-      case "herramientas":
-        return <Wrench className="h-6 w-6" />
-      case "alimentos-bebidas":
-        return <Utensils className="h-6 w-6" />
-      case "deportes-fitness":
-        return <Dumbbell className="h-6 w-6" />
-      case "arte-artesanias":
-        return <Palette className="h-6 w-6" />
-      default:
-        return <Smartphone className="h-6 w-6" />
-    }
-  }
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -71,7 +39,7 @@ export function MainCategories() {
           href={`/categoria/${category.slug}`}
           className="flex flex-col items-center justify-center p-4 bg-background rounded-lg border hover:border-primary transition-colors"
         >
-          <div className="mb-2 text-primary">{renderIcon(category.slug)}</div>
+          <div className="mb-2 text-primary">{category.icon}</div>
           <span className="text-sm font-medium text-center">{category.name}</span>
         </Link>
       ))}
