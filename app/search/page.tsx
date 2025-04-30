@@ -16,12 +16,13 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
   const query = searchParams.q || ""
   const allProducts = getAllProducts()
 
+  // Filtrar productos de manera segura
   const filteredProducts = query
     ? allProducts.filter(
         (product) =>
-          product.title.toLowerCase().includes(query.toLowerCase()) ||
-          product.description.toLowerCase().includes(query.toLowerCase()) ||
-          product.category.name.toLowerCase().includes(query.toLowerCase()),
+          (product.title || "").toLowerCase().includes(query.toLowerCase()) ||
+          (product.description || "").toLowerCase().includes(query.toLowerCase()) ||
+          (product.category?.name || "").toLowerCase().includes(query.toLowerCase()),
       )
     : []
 

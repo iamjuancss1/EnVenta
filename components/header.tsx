@@ -23,7 +23,7 @@ export function Header() {
 
   // Escuchar eventos de notificaciones leídas
   useEffect(() => {
-    const handleNotificationsRead = () => {
+    function handleNotificationsRead() {
       setNotificationCount(0)
       setShowNotificationCount(false)
     }
@@ -31,13 +31,13 @@ export function Header() {
     // Asegurarse de que estamos en el navegador antes de usar window
     if (typeof window !== "undefined") {
       window.addEventListener("notificationsRead", handleNotificationsRead)
-    }
 
-    return () => {
-      if (typeof window !== "undefined") {
+      return () => {
         window.removeEventListener("notificationsRead", handleNotificationsRead)
       }
     }
+
+    return undefined
   }, [])
 
   return (

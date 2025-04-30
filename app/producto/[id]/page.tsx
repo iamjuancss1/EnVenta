@@ -111,48 +111,50 @@ export default function ProductPage({ params }: ProductPageProps) {
     )
   }
 
-  // Calcular el porcentaje de descuento fuera del JSX
-  let discountPercentage = 0
-  if (product.originalPrice && product.price) {
-    discountPercentage = Math.round((1 - product.price / product.originalPrice) * 100)
-  }
-
-  // Verificar si el usuario actual es el vendedor del producto
+  // Preparar datos seguros para el JSX
+  const categoryName = product.category?.name || "Sin categoría"
+  const categorySlug = product.category?.slug || ""
+  const hasDiscount = product.originalPrice && product.price && product.originalPrice > product.price
+  const discountText = hasDiscount ? `${Math.round((1 - product.price / product.originalPrice) * 100)}% OFF` : ""
   const isOwner =
     user && product.userId && (user.id === product.userId || (product.seller && user.id === product.seller.id))
+  const sellerName = product.seller?.name || "Vendedor"
+  const sellerSince = product.seller?.memberSince || product.seller?.since || "2023"
+  const sellerEmail = product.seller?.email || ""
+  const sellerInitial = sellerName ? sellerName.charAt(0) : "V"
 
   return (
     <>
       <Header />
       <div className="container px-4 py-8 md:px-6 md:py-12">
-        <Link href={`/categoria/${product.category.slug}`}>
+        <Link href={`/categoria/${categorySlug}`}>
           <Button variant="ghost" size="sm" className="mb-4">
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Volver a {product.category.name}
+            Volver a {categoryName}
           </Button>
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
-          <ProductImageGallery images={product.images} title={product.title} />
+          <ProductImageGallery images={product.images || []} title={product.title || ""} />
 
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Link href={`/categoria/${product.category.slug}`}>
-                  <Badge variant="outline">{product.category.name}</Badge>
+                <Link href={`/categoria/${categorySlug}`}>
+                  <Badge variant="outline">{categoryName}</Badge>
                 </Link>
                 {product.isNew && <Badge>Nuevo</Badge>}
               </div>
               <h1 className="text-3xl font-bold">{product.title}</h1>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-3xl font-bold">{formatPrice(product.price)}</span>
-                {product.originalPrice && (
+                {hasDiscount && (
                   <>
                     <span className="text-lg line-through text-muted-foreground">
                       {formatPrice(product.originalPrice)}
                     </span>
                     <Badge variant="outline" className="text-green-600">
-                      {discountPercentage}% OFF
+                      {discountText}
                     </Badge>
                   </>
                 )}
@@ -161,7 +163,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{product.location}</span>
+              <span>{product.location || "Sin ubicación"}</span>
             </div>
 
             <div className="flex gap-4">
@@ -182,21 +184,18 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      {product.seller && product.seller.name ? product.seller.name.charAt(0) : "V"}
+                      {sellerInitial}
                     </div>
                     <div>
-                      <p className="font-medium">{product.seller ? product.seller.name : "Vendedor"}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Vendedor desde{" "}
-                        {product.seller && (product.seller.memberSince || product.seller.since || "2023")}
-                      </p>
+                      <p className="font-medium">{sellerName}</p>
+                      <p className="text-sm text-muted-foreground">Vendedor desde {sellerSince}</p>
                     </div>
                   </div>
 
                   {/* Solo mostrar email si el usuario es el dueño del producto */}
-                  {isOwner && product.seller && product.seller.email && (
+                  {isOwner && sellerEmail && (
                     <div className="flex items-center gap-2 text-sm">
-                      <span>Email: {product.seller.email}</span>
+                      <span>Email: {sellerEmail}</span>
                     </div>
                   )}
 
@@ -222,18 +221,21 @@ export default function ProductPage({ params }: ProductPageProps) {
               </TabsList>
               <TabsContent value="description" className="mt-4">
                 <div className="prose max-w-none">
-                  <p>{product.description}</p>
+                  <p>{product.description || "Sin descripción"}</p>
                 </div>
               </TabsContent>
               <TabsContent value="specifications" className="mt-4">
                 <ul className="space-y-2">
-                  {product.specifications &&
+                  {product.specifications && product.specifications.length > 0 ? (
                     product.specifications.map((spec: any, index: number) => (
                       <li key={index} className="flex">
-                        <span className="font-medium min-w-[150px]">{spec.name}:</span>
-                        <span>{spec.value}</span>
+                        <span className="font-medium min-w-[150px]">{spec.name || ""}:</span>
+                        <span>{spec.value || ""}</span>
                       </li>
-                    ))}
+                    ))
+                  ) : (
+                    <li>No hay especificaciones disponibles</li>
+                  )}
                 </ul>
               </TabsContent>
             </Tabs>
