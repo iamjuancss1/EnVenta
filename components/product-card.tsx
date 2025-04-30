@@ -22,30 +22,30 @@ export function ProductCard({ product }: ProductCardProps) {
   const price = product.price || 0
   const originalPrice = product.originalPrice || null
   const location = product.location || "Sin ubicación"
-
-  // Usar variables booleanas para todas las comparaciones
   const isNew = product.isNew === true
 
   // Obtener la primera imagen o usar una predeterminada
-  const imageUrl =
-    product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg?height=300&width=300"
+  let imageUrl = "/placeholder.svg?height=300&width=300"
+  if (product.images && product.images.length > 0) {
+    imageUrl = product.images[0]
+  }
 
   // Calcular descuento fuera del JSX
   let hasDiscount = false
   let discountText = ""
+  let formattedOriginalPrice = ""
 
   if (originalPrice !== null && originalPrice > 0 && price > 0) {
-    hasDiscount = originalPrice > price
-
-    if (hasDiscount) {
+    if (originalPrice > price) {
+      hasDiscount = true
       const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
       discountText = `${discountPercentage}% OFF`
+      formattedOriginalPrice = formatPrice(originalPrice)
     }
   }
 
-  // Formatear precios fuera del JSX
+  // Formatear precio actual
   const formattedPrice = formatPrice(price)
-  const formattedOriginalPrice = originalPrice ? formatPrice(originalPrice) : ""
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">

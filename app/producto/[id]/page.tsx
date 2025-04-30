@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +11,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, MapPin, Heart, AlertCircle } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { getProductById } from "@/lib/data"
-import { ProductImageGallery } from "@/components/product-image-gallery"
 import { useAuth } from "@/lib/auth"
 import { Header } from "@/components/header"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -28,6 +28,7 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   useEffect(() => {
     const fetchProduct = () => {
@@ -54,28 +55,14 @@ export default function ProductPage({ params }: ProductPageProps) {
       return
     }
 
-    // Redirigir a WhatsApp con el número del vendedor
-    if (product?.seller?.phone) {
-      try {
-        const phoneNumber = product.seller.phone.replace(/\+/g, "").replace(/\s/g, "")
-        const message = `Hola, estoy interesado en tu producto "${product.title}" en EnVenta`
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
-
-        // Asegurarse de que estamos en el navegador antes de usar window.open
-        if (typeof window !== "undefined") {
-          window.open(whatsappUrl, "_blank")
-        }
-      } catch (error) {
-        console.error("Error opening WhatsApp:", error)
-      }
-    }
+    // Simplificado para evitar problemas
+    alert("Contactando al vendedor...")
   }
 
   const handleAddToFavorites = () => {
     if (!user) {
       router.push(`/auth/login?redirect=/producto/${params.id}`)
     } else {
-      // Aquí iría la lógica para añadir a favoritos
       alert("Producto añadido a favoritos")
     }
   }
@@ -118,23 +105,31 @@ export default function ProductPage({ params }: ProductPageProps) {
   const originalPrice = product.originalPrice || null
   const description = product.description || "Sin descripción"
   const location = product.location || "Sin ubicación"
-  const isNew = Boolean(product.isNew)
+  const isNew = product.isNew === true
   const categoryName = product.category?.name || "Sin categoría"
   const categorySlug = product.category?.slug || ""
   const sellerName = product.seller?.name || "Vendedor"
   const sellerSince = product.seller?.memberSince || product.seller?.since || "2023"
   const sellerEmail = product.seller?.email || ""
-  const sellerInitial = sellerName ? sellerName.charAt(0) : "V"
+  const sellerInitial = sellerName.charAt(0) || "V"
 
-  // Calcular descuento fuera del JSX
+  // Imágenes
+  const images =
+    product.images && product.images.length > 0 ? product.images : ["/placeholder.svg?height=600&width=600"]
+  const currentImage = images[selectedImageIndex] || images[0]
+  const hasMultipleImages = images.length > 1
+
+  // Calcular descuento
   let hasDiscount = false
   let discountText = ""
+  let formattedOriginalPrice = ""
 
-  if (originalPrice !== null && price > 0) {
+  if (originalPrice !== null && originalPrice > 0 && price > 0) {
     hasDiscount = originalPrice > price
     if (hasDiscount) {
       const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
       discountText = `${discountPercentage}% OFF`
+      formattedOriginalPrice = formatPrice(originalPrice)
     }
   }
 
@@ -142,31 +137,55 @@ export default function ProductPage({ params }: ProductPageProps) {
   let isOwner = false
   if (user && product.userId) {
     isOwner = user.id === product.userId
-    if (product.seller && user.id === product.seller.id) {
-      isOwner = true
-    }
+  }
+  if (user && product.seller && user.id === product.seller.id) {
+    isOwner = true
   }
 
   return (
     <>
       <Header />
       <div className="container px-4 py-8 md:px-6 md:py-12">
-        <Link href={`/categoria/${categorySlug}`}>
+        <Link href={categorySlug ? `/categoria/${categorySlug}` : "/"}>
           <Button variant="ghost" size="sm" className="mb-4">
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Volver a {categoryName}
+            Volver
           </Button>
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
-          <ProductImageGallery images={product.images || []} title={title} />
+          {/* Galería de imágenes simplificada */}
+          <div className="space-y-4">
+            <div className="relative aspect-square overflow-hidden rounded-lg border">
+              <Image src={currentImage || "/placeholder.svg"} alt={title} fill className="object-cover" priority />
+            </div>
+
+            {hasMultipleImages && (
+              <div className="flex gap-2 overflow-auto pb-2">
+                {images.map((image, index) => (
+                  <button
+                    key={index}
+                    className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border ${
+                      selectedImageIndex === index ? "ring-2 ring-primary" : ""
+                    }`}
+                    onClick={() => setSelectedImageIndex(index)}
+                  >
+                    <Image
+                      src={image || "/placeholder.svg"}
+                      alt={`${title} - Miniatura ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Link href={`/categoria/${categorySlug}`}>
-                  <Badge variant="outline">{categoryName}</Badge>
-                </Link>
+                <Badge variant="outline">{categoryName}</Badge>
                 {isNew && <Badge>Nuevo</Badge>}
               </div>
               <h1 className="text-3xl font-bold">{title}</h1>
@@ -174,7 +193,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <span className="text-3xl font-bold">{formatPrice(price)}</span>
                 {hasDiscount && (
                   <>
-                    <span className="text-lg line-through text-muted-foreground">{formatPrice(originalPrice)}</span>
+                    <span className="text-lg line-through text-muted-foreground">{formattedOriginalPrice}</span>
                     <Badge variant="outline" className="text-green-600">
                       {discountText}
                     </Badge>
@@ -214,7 +233,6 @@ export default function ProductPage({ params }: ProductPageProps) {
                     </div>
                   </div>
 
-                  {/* Solo mostrar email si el usuario es el dueño del producto */}
                   {isOwner && sellerEmail && (
                     <div className="flex items-center gap-2 text-sm">
                       <span>Email: {sellerEmail}</span>
