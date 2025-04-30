@@ -13,13 +13,16 @@ interface CategoryPageProps {
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
+  // Obtener datos de categoría de forma segura
   const category = getCategoryBySlug(params.slug)
 
   if (!category) {
     notFound()
   }
 
-  const products = getProductsByCategory(params.slug)
+  // Obtener productos de forma segura
+  const products = getProductsByCategory(params.slug) || []
+  const productCount = products.length
 
   return (
     <>
@@ -33,7 +36,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             </Button>
           </Link>
           <h1 className="text-3xl font-bold">{category.name}</h1>
-          <p className="text-muted-foreground">{products.length} productos encontrados</p>
+          <p className="text-muted-foreground">{productCount} productos encontrados</p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

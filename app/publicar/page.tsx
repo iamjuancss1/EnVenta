@@ -15,6 +15,7 @@ import { AlertCircle, ChevronLeft, ImagePlus, Trash2, Loader2, Info } from "luci
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { getAllCategories } from "@/lib/data"
 import { formatPrice } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 
 export default function CreateProductPage() {
   const router = useRouter()
@@ -49,7 +50,10 @@ export default function CreateProductPage() {
     if (!files) return
 
     // Verificar si ya hay 8 imágenes
-    if (formData.images.length + files.length > 8) {
+    const totalImages = formData.images.length + files.length
+    const maxImagesExceeded = totalImages > 8
+
+    if (maxImagesExceeded) {
       setError("Solo puedes subir un máximo de 8 imágenes")
       return
     }
@@ -164,6 +168,7 @@ export default function CreateProductPage() {
 
   // Formatear el precio en tiempo real para mostrar al usuario
   const formattedPrice = formData.price ? formatPrice(Number(formData.price)) : ""
+  const isNewProduct = formData.isNew === "true"
 
   return (
     <div className="container px-4 py-8 md:px-6 md:py-12">
@@ -350,7 +355,7 @@ export default function CreateProductPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={src || "/placeholder.svg"}
-                        alt={`Preview ${index + 1}`}
+                        alt={`Vista previa ${index + 1}`}
                         className="h-full w-full object-cover"
                       />
                       <Button
@@ -401,9 +406,7 @@ export default function CreateProductPage() {
                     {formData.price ? formatPrice(Number(formData.price)) : "$ 0"}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
-                    <Badge variant={formData.isNew === "true" ? "default" : "outline"}>
-                      {formData.isNew === "true" ? "Nuevo" : "Usado"}
-                    </Badge>
+                    <Badge variant={isNewProduct ? "default" : "outline"}>{isNewProduct ? "Nuevo" : "Usado"}</Badge>
                     <span className="text-sm text-muted-foreground">{formData.location || "Ubicación"}</span>
                   </div>
                   <p className="mt-4 text-sm line-clamp-3">{formData.description || "Descripción del producto"}</p>
@@ -428,5 +431,3 @@ export default function CreateProductPage() {
     </div>
   )
 }
-
-import { Badge } from "@/components/ui/badge"

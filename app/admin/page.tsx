@@ -64,11 +64,10 @@ export default function AdminPage() {
     {
       accessorKey: "isNew",
       header: "Estado",
-      cell: ({ row }) => (
-        <Badge variant={row.getValue("isNew") ? "default" : "outline"}>
-          {row.getValue("isNew") ? "Nuevo" : "Usado"}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const isNew = row.getValue("isNew")
+        return <Badge variant={isNew ? "default" : "outline"}>{isNew ? "Nuevo" : "Usado"}</Badge>
+      },
     },
     {
       id: "actions",

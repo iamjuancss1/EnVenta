@@ -44,6 +44,12 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     },
   })
 
+  // Calcular valores para mostrar en la interfaz
+  const totalRows = data.length
+  const filteredRows = table.getFilteredRowModel().rows.length
+  const canPreviousPage = table.getCanPreviousPage()
+  const canNextPage = table.getCanNextPage()
+
   return (
     <div>
       <div className="flex items-center py-4">
@@ -91,18 +97,13 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Mostrando {table.getFilteredRowModel().rows.length} de {data.length} registros
+          Mostrando {filteredRows} de {totalRows} registros
         </div>
         <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
+          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!canPreviousPage}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!canNextPage}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
