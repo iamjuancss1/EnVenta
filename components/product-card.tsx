@@ -29,12 +29,12 @@ export function ProductCard({ product }: ProductCardProps) {
     product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg?height=300&width=300"
 
   // Calcular si hay descuento
-  const hasDiscount = originalPrice !== null && originalPrice > price
+  const hasDiscount = originalPrice !== null && originalPrice > price && price > 0
 
   // Calcular el porcentaje de descuento fuera del JSX
   let discountText = ""
   if (hasDiscount && originalPrice && price) {
-    const discountPercentage = Math.round((1 - price / originalPrice) * 100)
+    const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
     discountText = `${discountPercentage}% OFF`
   }
 

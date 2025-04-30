@@ -14,6 +14,7 @@ import { ProductImageGallery } from "@/components/product-image-gallery"
 import { useAuth } from "@/lib/auth"
 import { Header } from "@/components/header"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import type { Product } from "@/types/product"
 
 interface ProductPageProps {
   params: {
@@ -24,7 +25,7 @@ interface ProductPageProps {
 export default function ProductPage({ params }: ProductPageProps) {
   const { user } = useAuth()
   const router = useRouter()
-  const [product, setProduct] = useState<any>(null)
+  const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -117,7 +118,7 @@ export default function ProductPage({ params }: ProductPageProps) {
   const originalPrice = product.originalPrice || null
   const description = product.description || "Sin descripción"
   const location = product.location || "Sin ubicación"
-  const isNew = !!product.isNew
+  const isNew = Boolean(product.isNew)
   const categoryName = product.category?.name || "Sin categoría"
   const categorySlug = product.category?.slug || ""
   const sellerName = product.seller?.name || "Vendedor"
@@ -127,11 +128,10 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // Calcular descuento fuera del JSX
   const hasDiscount = originalPrice !== null && originalPrice > price
-  let discountPercentage = 0
   let discountText = ""
 
   if (hasDiscount && originalPrice && price) {
-    discountPercentage = Math.round((1 - price / originalPrice) * 100)
+    const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
     discountText = `${discountPercentage}% OFF`
   }
 

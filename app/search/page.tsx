@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import Link from "next/link"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
@@ -60,25 +59,23 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
           </p>
         </div>
 
-        <Suspense fallback={<div>Cargando resultados...</div>}>
-          {hasResults ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <h2 className="text-xl font-semibold mb-2">No se encontraron productos</h2>
-              <p className="text-muted-foreground mb-6">
-                Intenta con otros términos de búsqueda o explora nuestras categorías
-              </p>
-              <Link href="/">
-                <Button>Ver todas las categorías</Button>
-              </Link>
-            </div>
-          )}
-        </Suspense>
+        {hasResults ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">No se encontraron productos</h2>
+            <p className="text-muted-foreground mb-6">
+              Intenta con otros términos de búsqueda o explora nuestras categorías
+            </p>
+            <Link href="/">
+              <Button>Ver todas las categorías</Button>
+            </Link>
+          </div>
+        )}
       </div>
     </>
   )

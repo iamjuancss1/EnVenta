@@ -16,7 +16,7 @@ export function ProductImageGallery({ images = [], title = "Producto" }: Product
   const safeImages = images && images.length > 0 ? images : ["/placeholder.svg?height=600&width=600"]
 
   // Asegurarse de que selectedImage está dentro de los límites
-  const safeSelectedIndex = Math.min(Math.max(0, selectedImage), safeImages.length - 1)
+  const safeSelectedIndex = selectedImage < safeImages.length ? selectedImage : 0
   const currentImage = safeImages[safeSelectedIndex] || "/placeholder.svg?height=600&width=600"
   const imageAlt = `${title} - Imagen ${safeSelectedIndex + 1}`
 

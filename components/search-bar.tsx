@@ -26,10 +26,6 @@ export function SearchBar() {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
-
   return (
     <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4">
       <div className="relative flex items-center">
@@ -38,7 +34,7 @@ export function SearchBar() {
           placeholder="Buscar productos, marcas y más..."
           className="w-full pr-10"
           value={searchTerm}
-          onChange={handleChange}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <Button type="submit" variant="ghost" size="icon" className="absolute right-0">
           <Search className="h-4 w-4" />
