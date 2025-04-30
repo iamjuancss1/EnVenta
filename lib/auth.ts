@@ -35,20 +35,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Verificar si hay un usuario en localStorage al cargar
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
+    // Asegurarse de que estamos en el navegador antes de usar localStorage
+    if (typeof window !== "undefined") {
       try {
-        setUser(JSON.parse(storedUser))
+        const storedUser = localStorage.getItem("user")
+        if (storedUser) {
+          setUser(JSON.parse(storedUser))
+        }
       } catch (error) {
         console.error("Error parsing stored user:", error)
-        localStorage.removeItem("user")
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("user")
+        }
       }
     }
     setLoading(false)
   }, [])
 
   // Simular base de datos de usuarios
-  const [users, setUsers] = useState<User[]>([
+  const [users] = useState<User[]>([
     {
       id: "admin1",
       name: "Admin",
@@ -83,7 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Aquí simplemente simulamos que la contraseña es correcta
 
       // Guardar usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(foundUser))
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(foundUser))
+      }
       setUser(foundUser)
 
       // Redirigir al usuario a la página principal
@@ -115,11 +122,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: "user",
       }
 
-      // Añadir usuario a la "base de datos"
-      setUsers((prevUsers) => [...prevUsers, newUser])
-
       // Guardar usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(newUser))
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(newUser))
+      }
       setUser(newUser)
 
       // Redirigir al usuario a la página principal
@@ -133,7 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Función para cerrar sesión
   const logout = () => {
-    localStorage.removeItem("user")
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user")
+    }
     setUser(null)
     router.push("/")
   }
@@ -227,7 +235,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const magicLinkUser = users[1] // Simulamos que es el segundo usuario
 
       // Guardar usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(magicLinkUser))
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(magicLinkUser))
+      }
       setUser(magicLinkUser)
 
       // Redirigir al usuario a la página principal

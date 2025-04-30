@@ -28,10 +28,15 @@ export function Header() {
       setShowNotificationCount(false)
     }
 
-    window.addEventListener("notificationsRead", handleNotificationsRead)
+    // Asegurarse de que estamos en el navegador antes de usar window
+    if (typeof window !== "undefined") {
+      window.addEventListener("notificationsRead", handleNotificationsRead as EventListener)
+    }
 
     return () => {
-      window.removeEventListener("notificationsRead", handleNotificationsRead)
+      if (typeof window !== "undefined") {
+        window.removeEventListener("notificationsRead", handleNotificationsRead as EventListener)
+      }
     }
   }, [])
 
