@@ -6,21 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number | null | undefined): string {
-  // Si el precio es nulo o indefinido, devolver cadena vacía
-  if (price === null || price === undefined) {
-    return ""
+  // Si el precio no es válido, devolver un valor predeterminado
+  if (price === null || price === undefined || isNaN(Number(price))) {
+    return "$0"
   }
 
-  // Asegurarse de que el precio es un número
+  // Convertir a número para asegurar el tipo correcto
   const numericPrice = Number(price)
 
-  // Si no es un número válido, devolver cadena vacía
-  if (isNaN(numericPrice)) {
-    return ""
-  }
-
   try {
-    // Formatear el precio como moneda colombiana
+    // Usar Intl.NumberFormat para formatear el precio
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
@@ -28,8 +23,7 @@ export function formatPrice(price: number | null | undefined): string {
       maximumFractionDigits: 0,
     }).format(numericPrice)
   } catch (error) {
-    console.error("Error formatting price:", error)
-    // Fallback simple en caso de error
+    // En caso de error, devolver un formato simple
     return `$${numericPrice}`
   }
 }

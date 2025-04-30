@@ -14,6 +14,7 @@ import {
   Palette,
 } from "lucide-react"
 
+// Definir categorías con sus iconos y slugs
 const categories = [
   { name: "Tecnología", icon: <Smartphone className="h-6 w-6" />, slug: "tecnologia" },
   { name: "Vehículos", icon: <Car className="h-6 w-6" />, slug: "vehiculos" },

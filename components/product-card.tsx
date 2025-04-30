@@ -11,36 +11,39 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  // Verificar si el producto existe
+  // Si no hay producto, no renderizar nada
   if (!product) {
     return null
   }
 
-  // Extraer y preparar datos de forma segura
+  // Extraer datos del producto de forma segura
+  const id = product.id || ""
   const title = product.title || "Producto sin título"
   const price = product.price || 0
   const originalPrice = product.originalPrice || null
   const location = product.location || "Sin ubicación"
-  const isNew = !!product.isNew
-  const image =
+  const isNew = Boolean(product.isNew)
+
+  // Obtener la primera imagen o usar una predeterminada
+  const imageUrl =
     product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg?height=300&width=300"
 
-  // Calcular descuento fuera del JSX
+  // Calcular si hay descuento
   const hasDiscount = originalPrice !== null && originalPrice > price
-  let discountPercentage = 0
-  let discountText = ""
 
+  // Calcular el porcentaje de descuento
+  let discountText = ""
   if (hasDiscount && originalPrice && price) {
-    discountPercentage = Math.round((1 - price / originalPrice) * 100)
+    const discountPercentage = Math.round((1 - price / originalPrice) * 100)
     discountText = `${discountPercentage}% OFF`
   }
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
-      <Link href={`/producto/${product.id}`}>
+      <Link href={`/producto/${id}`}>
         <div className="relative aspect-square overflow-hidden">
           <Image
-            src={image || "/placeholder.svg"}
+            src={imageUrl || "/placeholder.svg"}
             alt={title}
             fill
             className="object-cover transition-transform hover:scale-105"

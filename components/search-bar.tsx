@@ -14,9 +14,20 @@ export function SearchBar() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchTerm.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm)}`)
+
+    // Validar que el término de búsqueda no esté vacío
+    const trimmedTerm = searchTerm.trim()
+
+    if (trimmedTerm) {
+      // Codificar el término de búsqueda para la URL
+      const encodedTerm = encodeURIComponent(trimmedTerm)
+      // Navegar a la página de resultados
+      router.push(`/search?q=${encodedTerm}`)
     }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
   }
 
   return (
@@ -27,7 +38,7 @@ export function SearchBar() {
           placeholder="Buscar productos, marcas y más..."
           className="w-full pr-10"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleChange}
         />
         <Button type="submit" variant="ghost" size="icon" className="absolute right-0">
           <Search className="h-4 w-4" />

@@ -13,18 +13,35 @@ interface SearchPageProps {
 }
 
 export default function SearchPage({ searchParams }: SearchPageProps) {
+  // Extraer y validar la consulta de búsqueda
   const query = searchParams.q || ""
-  const allProducts = getAllProducts()
+
+  // Obtener todos los productos
+  const allProducts = getAllProducts() || []
 
   // Filtrar productos de manera segura
-  const filteredProducts = query
-    ? allProducts.filter(
-        (product) =>
-          (product.title || "").toLowerCase().includes(query.toLowerCase()) ||
-          (product.description || "").toLowerCase().includes(query.toLowerCase()) ||
-          (product.category?.name || "").toLowerCase().includes(query.toLowerCase()),
-      )
-    : []
+  const filteredProducts = []
+
+  if (query && query.trim() !== "") {
+    const lowerCaseQuery = query.toLowerCase()
+
+    for (const product of allProducts) {
+      const title = (product.title || "").toLowerCase()
+      const description = (product.description || "").toLowerCase()
+      const categoryName = (product.category?.name || "").toLowerCase()
+
+      if (
+        title.includes(lowerCaseQuery) ||
+        description.includes(lowerCaseQuery) ||
+        categoryName.includes(lowerCaseQuery)
+      ) {
+        filteredProducts.push(product)
+      }
+    }
+  }
+
+  // Determinar si hay resultados
+  const hasResults = filteredProducts.length > 0
 
   return (
     <>
@@ -44,7 +61,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
         </div>
 
         <Suspense fallback={<div>Cargando resultados...</div>}>
-          {filteredProducts.length > 0 ? (
+          {hasResults ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />

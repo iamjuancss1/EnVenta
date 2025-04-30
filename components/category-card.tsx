@@ -10,12 +10,15 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ title, description, href, imageSrc }: CategoryCardProps) {
+  // Usar una imagen predeterminada si no se proporciona una
+  const imageSource = imageSrc || "/placeholder.svg?height=200&width=300"
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
       <Link href={href}>
         <div className="relative aspect-video overflow-hidden">
           <Image
-            src={imageSrc || "/placeholder.svg?height=200&width=300"}
+            src={imageSource || "/placeholder.svg"}
             alt={title}
             fill
             className="object-cover transition-transform hover:scale-105"
