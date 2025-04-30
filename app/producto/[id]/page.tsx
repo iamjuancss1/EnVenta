@@ -54,7 +54,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
 
     // Redirigir a WhatsApp con el número del vendedor
-    if (product && product.seller && product.seller.phone) {
+    if (product?.seller?.phone) {
       try {
         const phoneNumber = product.seller.phone.replace(/\+/g, "").replace(/\s/g, "")
         const message = `Hola, estoy interesado en tu producto "${product.title}" en EnVenta`
@@ -111,6 +111,12 @@ export default function ProductPage({ params }: ProductPageProps) {
     )
   }
 
+  // Calcular el porcentaje de descuento fuera del JSX
+  let discountPercentage = 0
+  if (product.originalPrice && product.price) {
+    discountPercentage = Math.round((1 - product.price / product.originalPrice) * 100)
+  }
+
   // Verificar si el usuario actual es el vendedor del producto
   const isOwner =
     user && product.userId && (user.id === product.userId || (product.seller && user.id === product.seller.id))
@@ -146,7 +152,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                       {formatPrice(product.originalPrice)}
                     </span>
                     <Badge variant="outline" className="text-green-600">
-                      {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                      {discountPercentage}% OFF
                     </Badge>
                   </>
                 )}

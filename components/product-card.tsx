@@ -11,6 +11,12 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  // Calcular el porcentaje de descuento fuera del JSX
+  let discountPercentage = 0
+  if (product.originalPrice && product.price) {
+    discountPercentage = Math.round((1 - product.price / product.originalPrice) * 100)
+  }
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
       <Link href={`/producto/${product.id}`}>
@@ -31,7 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <div className="flex items-center gap-2">
                 <span className="text-sm line-through text-muted-foreground">{formatPrice(product.originalPrice)}</span>
                 <Badge variant="outline" className="text-green-600">
-                  {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
+                  {discountPercentage}% OFF
                 </Badge>
               </div>
             )}
