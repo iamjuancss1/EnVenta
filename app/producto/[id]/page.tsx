@@ -241,7 +241,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               <TabsContent value="specifications" className="mt-4">
                 <ul className="space-y-2">
                   {product.specifications && product.specifications.length > 0 ? (
-                    product.specifications.map((spec: any, index: number) => (
+                    product.specifications.map((spec, index) => (
                       <li key={index} className="flex">
                         <span className="font-medium min-w-[150px]">{spec.name || ""}:</span>
                         <span>{spec.value || ""}</span>

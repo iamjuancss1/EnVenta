@@ -31,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
   // Calcular si hay descuento
   const hasDiscount = originalPrice !== null && originalPrice > price
 
-  // Calcular el porcentaje de descuento
+  // Calcular el porcentaje de descuento fuera del JSX
   let discountText = ""
   if (hasDiscount && originalPrice && price) {
     const discountPercentage = Math.round((1 - price / originalPrice) * 100)
