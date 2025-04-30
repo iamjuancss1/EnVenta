@@ -11,34 +11,49 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  // Asegurarse de que product y sus propiedades existan
+  // Verificar si el producto existe
   if (!product) {
     return null
   }
 
-  // Calcular el porcentaje de descuento fuera del JSX
-  const hasDiscount = product.originalPrice && product.price && product.originalPrice > product.price
-  const discountText = hasDiscount ? `${Math.round((1 - product.price / product.originalPrice) * 100)}% OFF` : ""
+  // Extraer y preparar datos de forma segura
+  const title = product.title || "Producto sin título"
+  const price = product.price || 0
+  const originalPrice = product.originalPrice || null
+  const location = product.location || "Sin ubicación"
+  const isNew = !!product.isNew
+  const image =
+    product.images && product.images.length > 0 ? product.images[0] : "/placeholder.svg?height=300&width=300"
+
+  // Calcular descuento fuera del JSX
+  const hasDiscount = originalPrice !== null && originalPrice > price
+  let discountPercentage = 0
+  let discountText = ""
+
+  if (hasDiscount && originalPrice && price) {
+    discountPercentage = Math.round((1 - price / originalPrice) * 100)
+    discountText = `${discountPercentage}% OFF`
+  }
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
       <Link href={`/producto/${product.id}`}>
         <div className="relative aspect-square overflow-hidden">
           <Image
-            src={product.images?.[0] || "/placeholder.svg?height=300&width=300"}
-            alt={product.title || "Producto"}
+            src={image || "/placeholder.svg"}
+            alt={title}
             fill
             className="object-cover transition-transform hover:scale-105"
           />
-          {product.isNew && <Badge className="absolute top-2 right-2">Nuevo</Badge>}
+          {isNew && <Badge className="absolute top-2 right-2">Nuevo</Badge>}
         </div>
         <CardContent className="p-4">
           <div className="space-y-2">
-            <h3 className="font-semibold line-clamp-2">{product.title || "Sin título"}</h3>
-            <p className="text-2xl font-bold">{formatPrice(product.price)}</p>
+            <h3 className="font-semibold line-clamp-2">{title}</h3>
+            <p className="text-2xl font-bold">{formatPrice(price)}</p>
             {hasDiscount && (
               <div className="flex items-center gap-2">
-                <span className="text-sm line-through text-muted-foreground">{formatPrice(product.originalPrice)}</span>
+                <span className="text-sm line-through text-muted-foreground">{formatPrice(originalPrice)}</span>
                 <Badge variant="outline" className="text-green-600">
                   {discountText}
                 </Badge>
@@ -49,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <CardFooter className="p-4 pt-0">
           <div className="flex items-center text-sm text-muted-foreground">
             <MapPin className="mr-1 h-3 w-3" />
-            {product.location || "Sin ubicación"}
+            {location}
           </div>
         </CardFooter>
       </Link>

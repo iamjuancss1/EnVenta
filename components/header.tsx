@@ -40,6 +40,13 @@ export function Header() {
     return undefined
   }, [])
 
+  // Preparar datos seguros para el JSX
+  const userName = user?.name || ""
+  const userAvatar = user?.avatar || "/placeholder.svg?height=32&width=32"
+  const userInitial = userName ? userName.charAt(0) : ""
+  const isAdmin = user?.role === "admin"
+  const showNotificationBadge = showNotificationCount && notificationCount > 0
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex items-center justify-between h-16 px-4 md:px-6">
@@ -60,7 +67,7 @@ export function Header() {
               <Link href="/notificaciones">
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  {showNotificationCount && notificationCount > 0 && (
+                  {showNotificationBadge && (
                     <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0">
                       {notificationCount}
                     </Badge>
@@ -72,10 +79,10 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar || "/placeholder.svg?height=32&width=32"} alt={user.name} />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={userAvatar || "/placeholder.svg"} alt={userName} />
+                      <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline">{user.name}</span>
+                    <span className="hidden md:inline">{userName}</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -87,7 +94,7 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={user.role === "admin" ? "/perfil/admin" : "/perfil"} className="flex items-center">
+                    <Link href={isAdmin ? "/perfil/admin" : "/perfil"} className="flex items-center">
                       <User className="mr-2 h-4 w-4" />
                       <span>Mi perfil</span>
                     </Link>
@@ -98,7 +105,7 @@ export function Header() {
                       <span>Ayuda</span>
                     </Link>
                   </DropdownMenuItem>
-                  {user.role === "admin" && (
+                  {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link href="/admin" className="flex items-center">
                         <User className="mr-2 h-4 w-4" />

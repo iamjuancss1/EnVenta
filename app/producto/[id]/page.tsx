@@ -112,16 +112,32 @@ export default function ProductPage({ params }: ProductPageProps) {
   }
 
   // Preparar datos seguros para el JSX
+  const title = product.title || "Producto sin título"
+  const price = product.price || 0
+  const originalPrice = product.originalPrice || null
+  const description = product.description || "Sin descripción"
+  const location = product.location || "Sin ubicación"
+  const isNew = !!product.isNew
   const categoryName = product.category?.name || "Sin categoría"
   const categorySlug = product.category?.slug || ""
-  const hasDiscount = product.originalPrice && product.price && product.originalPrice > product.price
-  const discountText = hasDiscount ? `${Math.round((1 - product.price / product.originalPrice) * 100)}% OFF` : ""
-  const isOwner =
-    user && product.userId && (user.id === product.userId || (product.seller && user.id === product.seller.id))
   const sellerName = product.seller?.name || "Vendedor"
   const sellerSince = product.seller?.memberSince || product.seller?.since || "2023"
   const sellerEmail = product.seller?.email || ""
   const sellerInitial = sellerName ? sellerName.charAt(0) : "V"
+
+  // Calcular descuento fuera del JSX
+  const hasDiscount = originalPrice !== null && originalPrice > price
+  let discountPercentage = 0
+  let discountText = ""
+
+  if (hasDiscount && originalPrice && price) {
+    discountPercentage = Math.round((1 - price / originalPrice) * 100)
+    discountText = `${discountPercentage}% OFF`
+  }
+
+  // Verificar si el usuario es el dueño del producto
+  const isOwner =
+    user && product.userId && (user.id === product.userId || (product.seller && user.id === product.seller.id))
 
   return (
     <>
@@ -135,7 +151,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
-          <ProductImageGallery images={product.images || []} title={product.title || ""} />
+          <ProductImageGallery images={product.images || []} title={title} />
 
           <div className="space-y-6">
             <div>
@@ -143,16 +159,14 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <Link href={`/categoria/${categorySlug}`}>
                   <Badge variant="outline">{categoryName}</Badge>
                 </Link>
-                {product.isNew && <Badge>Nuevo</Badge>}
+                {isNew && <Badge>Nuevo</Badge>}
               </div>
-              <h1 className="text-3xl font-bold">{product.title}</h1>
+              <h1 className="text-3xl font-bold">{title}</h1>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-3xl font-bold">{formatPrice(product.price)}</span>
+                <span className="text-3xl font-bold">{formatPrice(price)}</span>
                 {hasDiscount && (
                   <>
-                    <span className="text-lg line-through text-muted-foreground">
-                      {formatPrice(product.originalPrice)}
-                    </span>
+                    <span className="text-lg line-through text-muted-foreground">{formatPrice(originalPrice)}</span>
                     <Badge variant="outline" className="text-green-600">
                       {discountText}
                     </Badge>
@@ -163,7 +177,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{product.location || "Sin ubicación"}</span>
+              <span>{location}</span>
             </div>
 
             <div className="flex gap-4">
@@ -221,7 +235,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               </TabsList>
               <TabsContent value="description" className="mt-4">
                 <div className="prose max-w-none">
-                  <p>{product.description || "Sin descripción"}</p>
+                  <p>{description}</p>
                 </div>
               </TabsContent>
               <TabsContent value="specifications" className="mt-4">
