@@ -16,9 +16,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
-// Variable global simulada (en una app real, esto se manejaría con un contexto global)
-const hasVisitedNotifications = false
-
 export function Header() {
   const { user, logout } = useAuth()
   const [notificationCount, setNotificationCount] = useState(3)
@@ -31,25 +28,10 @@ export function Header() {
       setShowNotificationCount(false)
     }
 
-    // Simular recepción de nueva notificación
-    const handleNewNotification = () => {
-      setNotificationCount((prev) => prev + 1)
-      setShowNotificationCount(true)
-    }
-
     window.addEventListener("notificationsRead", handleNotificationsRead)
-
-    // Esto es solo para demostración - en una app real, esto vendría de un sistema de notificaciones en tiempo real
-    const newNotificationInterval = setInterval(() => {
-      // Solo añadir notificaciones si el usuario ya ha visitado la página de notificaciones
-      if (hasVisitedNotifications && Math.random() > 0.9) {
-        handleNewNotification()
-      }
-    }, 30000) // Cada 30 segundos hay una pequeña probabilidad de recibir una notificación
 
     return () => {
       window.removeEventListener("notificationsRead", handleNotificationsRead)
-      clearInterval(newNotificationInterval)
     }
   }, [])
 

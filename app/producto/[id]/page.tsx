@@ -55,9 +55,11 @@ export default function ProductPage({ params }: ProductPageProps) {
 
     // Redirigir a WhatsApp con el número del vendedor
     // Asumimos que el número está en formato internacional sin el "+"
-    const phoneNumber = product.seller.phone.replace(/\+/g, "").replace(/\s/g, "")
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=Hola, estoy interesado en tu producto "${product.title}" en EnVenta`
-    window.open(whatsappUrl, "_blank")
+    if (product && product.seller && product.seller.phone) {
+      const phoneNumber = product.seller.phone.replace(/\+/g, "").replace(/\s/g, "")
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=Hola, estoy interesado en tu producto "${product.title}" en EnVenta`
+      window.open(whatsappUrl, "_blank")
+    }
   }
 
   const handleAddToFavorites = () => {
@@ -102,7 +104,8 @@ export default function ProductPage({ params }: ProductPageProps) {
   }
 
   // Verificar si el usuario actual es el vendedor del producto
-  const isOwner = user && (user.id === product.userId || user.id === product.seller.id)
+  const isOwner =
+    user && product.userId && (user.id === product.userId || (product.seller && user.id === product.seller.id))
 
   return (
     <>
@@ -165,18 +168,19 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      {product.seller.name.charAt(0)}
+                      {product.seller && product.seller.name ? product.seller.name.charAt(0) : "V"}
                     </div>
                     <div>
-                      <p className="font-medium">{product.seller.name}</p>
+                      <p className="font-medium">{product.seller ? product.seller.name : "Vendedor"}</p>
                       <p className="text-sm text-muted-foreground">
-                        Vendedor desde {product.seller.memberSince || product.seller.since}
+                        Vendedor desde{" "}
+                        {product.seller && (product.seller.memberSince || product.seller.since || "2023")}
                       </p>
                     </div>
                   </div>
 
                   {/* Solo mostrar email si el usuario es el dueño del producto */}
-                  {isOwner && (
+                  {isOwner && product.seller && product.seller.email && (
                     <div className="flex items-center gap-2 text-sm">
                       <span>Email: {product.seller.email}</span>
                     </div>
@@ -209,12 +213,13 @@ export default function ProductPage({ params }: ProductPageProps) {
               </TabsContent>
               <TabsContent value="specifications" className="mt-4">
                 <ul className="space-y-2">
-                  {product.specifications.map((spec: any, index: number) => (
-                    <li key={index} className="flex">
-                      <span className="font-medium min-w-[150px]">{spec.name}:</span>
-                      <span>{spec.value}</span>
-                    </li>
-                  ))}
+                  {product.specifications &&
+                    product.specifications.map((spec: any, index: number) => (
+                      <li key={index} className="flex">
+                        <span className="font-medium min-w-[150px]">{spec.name}:</span>
+                        <span>{spec.value}</span>
+                      </li>
+                    ))}
                 </ul>
               </TabsContent>
             </Tabs>

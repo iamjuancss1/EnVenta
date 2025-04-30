@@ -42,10 +42,6 @@ const initialNotifications = [
   },
 ]
 
-// Contexto global para notificaciones (simulado)
-let globalNotificationCount = 3
-let hasVisitedNotifications = false
-
 export default function NotificationsPage() {
   const { user } = useAuth()
   const router = useRouter()
@@ -56,14 +52,10 @@ export default function NotificationsPage() {
     if (!user) {
       router.push("/auth/login")
     } else {
-      // Marcar que el usuario ha visitado la página de notificaciones
-      hasVisitedNotifications = true
-
-      // Actualizar el contador global
-      globalNotificationCount = 0
-
-      // Forzar actualización del header (en una app real, esto se haría con un contexto global)
-      window.dispatchEvent(new CustomEvent("notificationsRead"))
+      // Notificar que se han leído las notificaciones
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("notificationsRead"))
+      }
     }
   }, [user, router])
 
