@@ -46,26 +46,23 @@ export default function NotificationsPage() {
   const { user } = useAuth()
   const router = useRouter()
   const [notifications, setNotifications] = useState(initialNotifications)
-  const [notificationsRead, setNotificationsRead] = useState(false)
 
   // Redirigir si el usuario no está autenticado
   useEffect(() => {
     if (!user) {
       router.push("/auth/login")
-    } else if (!notificationsRead) {
+    } else {
       // Notificar que se han leído las notificaciones
-      setNotificationsRead(true)
-
-      // Asegurarse de que estamos en el navegador antes de usar CustomEvent
       if (typeof window !== "undefined") {
         try {
-          window.dispatchEvent(new Event("notificationsRead"))
+          const event = new Event("notificationsRead")
+          window.dispatchEvent(event)
         } catch (error) {
-          console.error("Error dispatching notificationsRead event:", error)
+          console.error("Error dispatching event:", error)
         }
       }
     }
-  }, [user, router, notificationsRead])
+  }, [user, router])
 
   if (!user) {
     return null

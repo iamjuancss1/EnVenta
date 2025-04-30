@@ -30,12 +30,12 @@ export function Header() {
 
     // Asegurarse de que estamos en el navegador antes de usar window
     if (typeof window !== "undefined") {
-      window.addEventListener("notificationsRead", handleNotificationsRead as EventListener)
+      window.addEventListener("notificationsRead", handleNotificationsRead)
     }
 
     return () => {
       if (typeof window !== "undefined") {
-        window.removeEventListener("notificationsRead", handleNotificationsRead as EventListener)
+        window.removeEventListener("notificationsRead", handleNotificationsRead)
       }
     }
   }, [])

@@ -54,10 +54,11 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
 
     // Redirigir a WhatsApp con el número del vendedor
-    if (product?.seller?.phone) {
+    if (product && product.seller && product.seller.phone) {
       try {
         const phoneNumber = product.seller.phone.replace(/\+/g, "").replace(/\s/g, "")
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(`Hola, estoy interesado en tu producto "${product.title}" en EnVenta`)}`
+        const message = `Hola, estoy interesado en tu producto "${product.title}" en EnVenta`
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
 
         // Asegurarse de que estamos en el navegador antes de usar window.open
         if (typeof window !== "undefined") {
@@ -175,18 +176,19 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      {product.seller?.name ? product.seller.name.charAt(0) : "V"}
+                      {product.seller && product.seller.name ? product.seller.name.charAt(0) : "V"}
                     </div>
                     <div>
-                      <p className="font-medium">{product.seller?.name || "Vendedor"}</p>
+                      <p className="font-medium">{product.seller ? product.seller.name : "Vendedor"}</p>
                       <p className="text-sm text-muted-foreground">
-                        Vendedor desde {product.seller?.memberSince || product.seller?.since || "2023"}
+                        Vendedor desde{" "}
+                        {product.seller && (product.seller.memberSince || product.seller.since || "2023")}
                       </p>
                     </div>
                   </div>
 
                   {/* Solo mostrar email si el usuario es el dueño del producto */}
-                  {isOwner && product.seller?.email && (
+                  {isOwner && product.seller && product.seller.email && (
                     <div className="flex items-center gap-2 text-sm">
                       <span>Email: {product.seller.email}</span>
                     </div>
@@ -219,12 +221,13 @@ export default function ProductPage({ params }: ProductPageProps) {
               </TabsContent>
               <TabsContent value="specifications" className="mt-4">
                 <ul className="space-y-2">
-                  {product.specifications?.map((spec: any, index: number) => (
-                    <li key={index} className="flex">
-                      <span className="font-medium min-w-[150px]">{spec.name}:</span>
-                      <span>{spec.value}</span>
-                    </li>
-                  ))}
+                  {product.specifications &&
+                    product.specifications.map((spec: any, index: number) => (
+                      <li key={index} className="flex">
+                        <span className="font-medium min-w-[150px]">{spec.name}:</span>
+                        <span>{spec.value}</span>
+                      </li>
+                    ))}
                 </ul>
               </TabsContent>
             </Tabs>
