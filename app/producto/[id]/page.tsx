@@ -127,17 +127,25 @@ export default function ProductPage({ params }: ProductPageProps) {
   const sellerInitial = sellerName ? sellerName.charAt(0) : "V"
 
   // Calcular descuento fuera del JSX
-  const hasDiscount = originalPrice !== null && originalPrice > price
+  let hasDiscount = false
   let discountText = ""
 
-  if (hasDiscount && originalPrice && price) {
-    const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
-    discountText = `${discountPercentage}% OFF`
+  if (originalPrice !== null && price > 0) {
+    hasDiscount = originalPrice > price
+    if (hasDiscount) {
+      const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
+      discountText = `${discountPercentage}% OFF`
+    }
   }
 
   // Verificar si el usuario es el dueño del producto
-  const isOwner =
-    user && product.userId && (user.id === product.userId || (product.seller && user.id === product.seller.id))
+  let isOwner = false
+  if (user && product.userId) {
+    isOwner = user.id === product.userId
+    if (product.seller && user.id === product.seller.id) {
+      isOwner = true
+    }
+  }
 
   return (
     <>

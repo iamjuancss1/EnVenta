@@ -9,15 +9,19 @@ interface ProductImageGalleryProps {
   title: string
 }
 
-export function ProductImageGallery({ images = [], title = "Producto" }: ProductImageGalleryProps) {
+export function ProductImageGallery({ images, title }: ProductImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState(0)
 
   // Asegurarse de que hay al menos una imagen
   const safeImages = images && images.length > 0 ? images : ["/placeholder.svg?height=600&width=600"]
 
   // Asegurarse de que selectedImage está dentro de los límites
-  const safeSelectedIndex = selectedImage < safeImages.length ? selectedImage : 0
-  const currentImage = safeImages[safeSelectedIndex] || "/placeholder.svg?height=600&width=600"
+  let safeSelectedIndex = selectedImage
+  if (safeSelectedIndex >= safeImages.length) {
+    safeSelectedIndex = 0
+  }
+
+  const currentImage = safeImages[safeSelectedIndex]
   const imageAlt = `${title} - Imagen ${safeSelectedIndex + 1}`
 
   return (
@@ -41,12 +45,7 @@ export function ProductImageGallery({ images = [], title = "Producto" }: Product
                 )}
                 onClick={() => setSelectedImage(index)}
               >
-                <Image
-                  src={image || "/placeholder.svg?height=80&width=80"}
-                  alt={thumbnailAlt}
-                  fill
-                  className="object-cover"
-                />
+                <Image src={image || "/placeholder.svg"} alt={thumbnailAlt} fill className="object-cover" />
               </button>
             )
           })}

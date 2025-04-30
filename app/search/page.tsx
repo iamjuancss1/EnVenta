@@ -25,6 +25,8 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
     const lowerCaseQuery = query.toLowerCase()
 
     for (const product of allProducts) {
+      if (!product) continue
+
       const title = (product.title || "").toLowerCase()
       const description = (product.description || "").toLowerCase()
       const categoryName = (product.category?.name || "").toLowerCase()
