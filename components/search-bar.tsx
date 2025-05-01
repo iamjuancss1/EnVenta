@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Search } from "lucide-react"
@@ -12,19 +10,22 @@ export function SearchBar() {
   const [searchTerm, setSearchTerm] = useState("")
   const router = useRouter()
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e) => {
     e.preventDefault()
 
     // Validar que el término de búsqueda no esté vacío
     const trimmedTerm = searchTerm.trim()
-    const hasSearchTerm = trimmedTerm !== ""
 
-    if (hasSearchTerm) {
+    if (trimmedTerm !== "") {
       // Codificar el término de búsqueda para la URL
       const encodedTerm = encodeURIComponent(trimmedTerm)
       // Navegar a la página de resultados
-      router.push(`/search?q=${encodedTerm}`)
+      router.push("/search?q=" + encodedTerm)
     }
+  }
+
+  const handleChange = (e) => {
+    setSearchTerm(e.target.value)
   }
 
   return (
@@ -35,7 +36,7 @@ export function SearchBar() {
           placeholder="Buscar productos, marcas y más..."
           className="w-full pr-10"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleChange}
         />
         <Button type="submit" variant="ghost" size="icon" className="absolute right-0">
           <Search className="h-4 w-4" />

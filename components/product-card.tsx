@@ -4,13 +4,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
-import type { Product } from "@/types/product"
 
-interface ProductCardProps {
-  product: Product
-}
-
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product }) {
   // Verificación de seguridad
   if (!product) {
     return null
@@ -22,6 +17,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const price = product.price || 0
   const originalPrice = product.originalPrice || null
   const location = product.location || "Sin ubicación"
+
+  // Determinar si el producto es nuevo
   const isNew = product.isNew === true
 
   // Obtener la primera imagen o usar una predeterminada
@@ -39,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
     if (originalPrice > price) {
       hasDiscount = true
       const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
-      discountText = `${discountPercentage}% OFF`
+      discountText = discountPercentage + "% OFF"
       formattedOriginalPrice = formatPrice(originalPrice)
     }
   }
@@ -49,7 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg">
-      <Link href={`/producto/${id}`}>
+      <Link href={"/producto/" + id}>
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={imageUrl || "/placeholder.svg"}

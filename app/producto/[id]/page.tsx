@@ -1,9 +1,5 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,83 +7,22 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronLeft, MapPin, Heart, AlertCircle } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { getProductById } from "@/lib/data"
-import { useAuth } from "@/lib/auth"
 import { Header } from "@/components/header"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import type { Product } from "@/types/product"
 
-interface ProductPageProps {
-  params: {
-    id: string
-  }
-}
+export default function ProductPage({ params }) {
+  // Obtener el producto
+  const product = getProductById(params.id)
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const { user } = useAuth()
-  const router = useRouter()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-
-  useEffect(() => {
-    const fetchProduct = () => {
-      try {
-        const productData = getProductById(params.id)
-        if (!productData) {
-          setError("Producto no encontrado")
-        } else {
-          setProduct(productData)
-        }
-      } catch (err) {
-        setError("Error al cargar el producto")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProduct()
-  }, [params.id])
-
-  const handleContactSeller = () => {
-    if (!user) {
-      router.push(`/auth/login?redirect=/producto/${params.id}`)
-      return
-    }
-
-    // Simplificado para evitar problemas
-    alert("Contactando al vendedor...")
-  }
-
-  const handleAddToFavorites = () => {
-    if (!user) {
-      router.push(`/auth/login?redirect=/producto/${params.id}`)
-    } else {
-      alert("Producto añadido a favoritos")
-    }
-  }
-
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <div className="container px-4 py-8 md:px-6 md:py-12">
-          <div className="flex items-center justify-center h-64">
-            <p>Cargando producto...</p>
-          </div>
-        </div>
-      </>
-    )
-  }
-
-  if (error || !product) {
+  // Si no hay producto, mostrar error
+  if (!product) {
     return (
       <>
         <Header />
         <div className="container px-4 py-8 md:px-6 md:py-12">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error || "Producto no encontrado"}</AlertDescription>
+            <AlertDescription>Producto no encontrado</AlertDescription>
           </Alert>
           <div className="mt-4">
             <Link href="/">
@@ -100,6 +35,7 @@ export default function ProductPage({ params }: ProductPageProps) {
   }
 
   // Preparar datos seguros para el JSX
+  const id = product.id || ""
   const title = product.title || "Producto sin título"
   const price = product.price || 0
   const originalPrice = product.originalPrice || null
@@ -110,14 +46,10 @@ export default function ProductPage({ params }: ProductPageProps) {
   const categorySlug = product.category?.slug || ""
   const sellerName = product.seller?.name || "Vendedor"
   const sellerSince = product.seller?.memberSince || product.seller?.since || "2023"
-  const sellerEmail = product.seller?.email || ""
-  const sellerInitial = sellerName.charAt(0) || "V"
 
   // Imágenes
   const images =
     product.images && product.images.length > 0 ? product.images : ["/placeholder.svg?height=600&width=600"]
-  const currentImage = images[selectedImageIndex] || images[0]
-  const hasMultipleImages = images.length > 1
 
   // Calcular descuento
   let hasDiscount = false
@@ -125,28 +57,22 @@ export default function ProductPage({ params }: ProductPageProps) {
   let formattedOriginalPrice = ""
 
   if (originalPrice !== null && originalPrice > 0 && price > 0) {
-    hasDiscount = originalPrice > price
-    if (hasDiscount) {
+    if (originalPrice > price) {
+      hasDiscount = true
       const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
-      discountText = `${discountPercentage}% OFF`
+      discountText = discountPercentage + "% OFF"
       formattedOriginalPrice = formatPrice(originalPrice)
     }
   }
 
-  // Verificar si el usuario es el dueño del producto
-  let isOwner = false
-  if (user && product.userId) {
-    isOwner = user.id === product.userId
-  }
-  if (user && product.seller && user.id === product.seller.id) {
-    isOwner = true
-  }
+  // Formatear precio actual
+  const formattedPrice = formatPrice(price)
 
   return (
     <>
       <Header />
       <div className="container px-4 py-8 md:px-6 md:py-12">
-        <Link href={categorySlug ? `/categoria/${categorySlug}` : "/"}>
+        <Link href={categorySlug ? "/categoria/" + categorySlug : "/"}>
           <Button variant="ghost" size="sm" className="mb-4">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Volver
@@ -157,26 +83,20 @@ export default function ProductPage({ params }: ProductPageProps) {
           {/* Galería de imágenes simplificada */}
           <div className="space-y-4">
             <div className="relative aspect-square overflow-hidden rounded-lg border">
-              <Image src={currentImage || "/placeholder.svg"} alt={title} fill className="object-cover" priority />
+              <Image src={images[0] || "/placeholder.svg"} alt={title} fill className="object-cover" priority />
             </div>
 
-            {hasMultipleImages && (
+            {images.length > 1 && (
               <div className="flex gap-2 overflow-auto pb-2">
                 {images.map((image, index) => (
-                  <button
-                    key={index}
-                    className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border ${
-                      selectedImageIndex === index ? "ring-2 ring-primary" : ""
-                    }`}
-                    onClick={() => setSelectedImageIndex(index)}
-                  >
+                  <div key={index} className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
                     <Image
                       src={image || "/placeholder.svg"}
-                      alt={`${title} - Miniatura ${index + 1}`}
+                      alt={title + " - Miniatura " + (index + 1)}
                       fill
                       className="object-cover"
                     />
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -190,7 +110,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
               <h1 className="text-3xl font-bold">{title}</h1>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-3xl font-bold">{formatPrice(price)}</span>
+                <span className="text-3xl font-bold">{formattedPrice}</span>
                 {hasDiscount && (
                   <>
                     <span className="text-lg line-through text-muted-foreground">{formattedOriginalPrice}</span>
@@ -208,12 +128,8 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
 
             <div className="flex gap-4">
-              {!isOwner && (
-                <Button className="flex-1" onClick={handleContactSeller}>
-                  Contactar al vendedor
-                </Button>
-              )}
-              <Button variant="outline" size="icon" onClick={handleAddToFavorites}>
+              <Button className="flex-1">Contactar al vendedor</Button>
+              <Button variant="outline" size="icon">
                 <Heart className="h-4 w-4" />
                 <span className="sr-only">Añadir a favoritos</span>
               </Button>
@@ -225,31 +141,13 @@ export default function ProductPage({ params }: ProductPageProps) {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      {sellerInitial}
+                      {sellerName.charAt(0)}
                     </div>
                     <div>
                       <p className="font-medium">{sellerName}</p>
                       <p className="text-sm text-muted-foreground">Vendedor desde {sellerSince}</p>
                     </div>
                   </div>
-
-                  {isOwner && sellerEmail && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <span>Email: {sellerEmail}</span>
-                    </div>
-                  )}
-
-                  {!user && (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      <Link
-                        href={`/auth/login?redirect=/producto/${params.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        Inicia sesión
-                      </Link>{" "}
-                      para contactar al vendedor
-                    </p>
-                  )}
                 </div>
               </CardContent>
             </Card>

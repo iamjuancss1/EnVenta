@@ -4,15 +4,8 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft } from "lucide-react"
 import { getAllProducts } from "@/lib/data"
 import { Header } from "@/components/header"
-import type { Product } from "@/types/product"
 
-interface SearchPageProps {
-  searchParams: {
-    q?: string
-  }
-}
-
-export default function SearchPage({ searchParams }: SearchPageProps) {
+export default function SearchPage({ searchParams }) {
   // Extraer y validar la consulta de búsqueda
   const query = searchParams.q || ""
 
@@ -20,21 +13,23 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
   const allProducts = getAllProducts() || []
 
   // Filtrar productos de manera segura
-  const filteredProducts: Product[] = []
+  const filteredProducts = []
 
   if (query && query.trim() !== "") {
     const lowerCaseQuery = query.toLowerCase()
 
-    for (const product of allProducts) {
+    for (let i = 0; i < allProducts.length; i++) {
+      const product = allProducts[i]
       if (!product) continue
 
       const title = (product.title || "").toLowerCase()
       const description = (product.description || "").toLowerCase()
       const categoryName = (product.category?.name || "").toLowerCase()
 
-      const matchesTitle = title.includes(lowerCaseQuery)
-      const matchesDescription = description.includes(lowerCaseQuery)
-      const matchesCategory = categoryName.includes(lowerCaseQuery)
+      // Usar indexOf en lugar de includes para evitar problemas
+      const matchesTitle = title.indexOf(lowerCaseQuery) !== -1
+      const matchesDescription = description.indexOf(lowerCaseQuery) !== -1
+      const matchesCategory = categoryName.indexOf(lowerCaseQuery) !== -1
 
       if (matchesTitle || matchesDescription || matchesCategory) {
         filteredProducts.push(product)
