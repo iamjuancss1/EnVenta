@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { cn } from "@/lib/utils"
 
 interface ProductImageGalleryProps {
   images: string[]
@@ -16,7 +15,7 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
   const safeImages = images && images.length > 0 ? images : ["/placeholder.svg?height=600&width=600"]
 
   // Asegurarse de que selectedImage está dentro de los límites
-  const safeSelectedIndex = selectedImage >= safeImages.length ? 0 : selectedImage
+  const safeSelectedIndex = selectedImage < safeImages.length ? selectedImage : 0
   const currentImage = safeImages[safeSelectedIndex]
   const imageAlt = `${title} - Imagen ${safeSelectedIndex + 1}`
   const hasMultipleImages = safeImages.length > 1
@@ -32,10 +31,9 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
           {safeImages.map((image, index) => {
             const isSelected = safeSelectedIndex === index
             const thumbnailAlt = `${title} - Miniatura ${index + 1}`
-            const thumbnailClasses = cn(
-              "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border",
-              isSelected && "ring-2 ring-primary",
-            )
+            const thumbnailClasses = `relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border ${
+              isSelected ? "ring-2 ring-primary" : ""
+            }`
 
             return (
               <button key={index} className={thumbnailClasses} onClick={() => setSelectedImage(index)}>

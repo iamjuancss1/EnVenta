@@ -2,14 +2,11 @@
 
 import { useState } from "react"
 import {
-  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
-  type SortingState,
   getSortedRowModel,
-  type ColumnFiltersState,
   getFilteredRowModel,
 } from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
@@ -17,14 +14,9 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-}
-
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+export function DataTable({ columns, data }) {
+  const [sorting, setSorting] = useState([])
+  const [columnFilters, setColumnFilters] = useState([])
   const [globalFilter, setGlobalFilter] = useState("")
 
   const table = useReactTable({
@@ -77,7 +69,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (

@@ -1,4 +1,4 @@
-// Este script busca posibles errores de sintaxis JSX relacionados con operadores de comparación
+// Este script busca patrones específicos que podrían causar el error "Expected '>', got 'value'"
 const fs = require("fs")
 const path = require("path")
 
@@ -8,21 +8,31 @@ const directories = ["app", "components", "lib"]
 // Extensiones de archivo a escanear
 const extensions = [".tsx", ".jsx", ".ts", ".js"]
 
-// Patrones problemáticos a buscar
+// Patrones problemáticos específicos
 const problematicPatterns = [
-  // Operadores de comparación sin escapar en JSX
-  /<[^>]*?[a-zA-Z]>[a-zA-Z]/g,
-  /<[^>]*?[a-zA-Z]<[a-zA-Z]/g,
-  // Operadores genéricos mal formados
-  /[a-zA-Z]<[a-zA-Z]+=[a-zA-Z]/g,
-  // Operadores de comparación en expresiones JSX
-  /{[^}]*?[a-zA-Z]>[a-zA-Z][^}]*?}/g,
-  /{[^}]*?[a-zA-Z]<[a-zA-Z][^}]*?}/g,
-  // Tipos genéricos problemáticos
-  /[a-zA-Z]<[a-zA-Z]+,[a-zA-Z]/g,
+  // Operadores de comparación sin espacios
+  /[a-zA-Z0-9]>[a-zA-Z0-9]/g,
+  /[a-zA-Z0-9]<[a-zA-Z0-9]/g,
+
+  // Operadores de comparación en JSX
+  /<[^>]*?[a-zA-Z0-9]>[a-zA-Z0-9][^<]*?>/g,
+  /<[^>]*?[a-zA-Z0-9]<[a-zA-Z0-9][^<]*?>/g,
+
   // Operadores ternarios problemáticos
-  /\?[^:]*?<[a-zA-Z]/g,
-  /\?[^:]*?>[a-zA-Z]/g,
+  /\?[^:]*?<[a-zA-Z0-9]/g,
+  /\?[^:]*?>[a-zA-Z0-9]/g,
+
+  // Expresiones JSX con operadores de comparación
+  /{[^}]*?[a-zA-Z0-9]>[a-zA-Z0-9][^}]*?}/g,
+  /{[^}]*?[a-zA-Z0-9]<[a-zA-Z0-9][^}]*?}/g,
+
+  // Tipos genéricos problemáticos
+  /[a-zA-Z]<[a-zA-Z]+>/g,
+  /[a-zA-Z]<[a-zA-Z]+,[a-zA-Z]+>/g,
+
+  // Operadores lógicos AND/OR seguidos de JSX
+  /&&\s*<[a-zA-Z]/g,
+  /\|\|\s*<[a-zA-Z]/g,
 ]
 
 // Función para escanear un archivo
@@ -33,25 +43,25 @@ function scanFile(filePath) {
 
     let hasIssues = false
 
-    problematicPatterns.forEach((pattern, patternIndex) => {
+    problematicPatterns.forEach((pattern, index) => {
       let match
       while ((match = pattern.exec(content)) !== null) {
         // Encontrar el número de línea
-        let lineNumber = 0
-        let charCount = 0
+        let lineNumber = 1
+        let pos = 0
         for (let i = 0; i < lines.length; i++) {
-          if (charCount + lines[i].length + 1 > match.index) {
+          if (pos + lines[i].length >= match.index) {
             lineNumber = i + 1
             break
           }
-          charCount += lines[i].length + 1 // +1 para el carácter de nueva línea
+          pos += lines[i].length + 1 // +1 para el carácter de nueva línea
         }
 
         // Obtener el contexto (la línea completa)
         const line = lines[lineNumber - 1] || ""
 
         console.log(`\x1b[31mPosible error en ${filePath}:${lineNumber}\x1b[0m`)
-        console.log(`Patrón problemático #${patternIndex + 1}: ${pattern}`)
+        console.log(`Patrón #${index + 1}: ${pattern}`)
         console.log(`Contexto: ${line.trim()}`)
         console.log("---")
 
@@ -96,7 +106,7 @@ function scanDirectory(dir) {
 
 // Función principal
 function main() {
-  console.log("Buscando posibles errores de sintaxis JSX...")
+  console.log("Buscando patrones específicos que podrían causar el error 'Expected >, got value'...")
 
   let hasIssues = false
 
@@ -109,7 +119,7 @@ function main() {
   }
 
   if (!hasIssues) {
-    console.log("\x1b[32mNo se encontraron problemas potenciales.\x1b[0m")
+    console.log("\x1b[32mNo se encontraron patrones problemáticos específicos.\x1b[0m")
   } else {
     console.log("\x1b[33mSe encontraron posibles problemas. Revisa los archivos mencionados.\x1b[0m")
   }

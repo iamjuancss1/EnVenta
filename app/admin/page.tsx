@@ -12,33 +12,37 @@ import { useAuth } from "@/lib/auth"
 import { getAllProducts } from "@/lib/data"
 import { Header } from "@/components/header"
 import { DataTable } from "@/components/data-table"
-import type { ColumnDef } from "@tanstack/react-table"
-import type { Product } from "@/types/product"
 import { formatPrice } from "@/lib/utils"
 
 export default function AdminPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState([])
 
   // Redirigir si el usuario no es administrador
   useEffect(() => {
-    if (user && user.role !== "admin") {
-      router.push("/")
-    } else if (!user) {
-      router.push("/auth/login")
+    if (user) {
+      if (user.role !== "admin") {
+        router.push("/")
+      } else {
+        // Cargar productos
+        setProducts(getAllProducts())
+      }
     } else {
-      // Cargar productos
-      setProducts(getAllProducts())
+      router.push("/auth/login")
     }
   }, [user, router])
 
-  if (!user || user.role !== "admin") {
+  if (!user) {
+    return null
+  }
+
+  if (user.role !== "admin") {
     return null
   }
 
   // Columnas para la tabla de productos
-  const columns: ColumnDef<Product>[] = [
+  const columns = [
     {
       accessorKey: "id",
       header: "ID",

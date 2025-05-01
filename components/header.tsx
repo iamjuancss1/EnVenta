@@ -28,24 +28,22 @@ export function Header() {
       setShowNotificationCount(false)
     }
 
-    // Asegurarse de que estamos en el navegador antes de usar window
     if (typeof window !== "undefined") {
       window.addEventListener("notificationsRead", handleNotificationsRead)
-
       return () => {
         window.removeEventListener("notificationsRead", handleNotificationsRead)
       }
     }
-
     return undefined
   }, [])
 
   // Preparar datos seguros para el JSX
-  const userName = user?.name || ""
-  const userAvatar = user?.avatar || "/placeholder.svg?height=32&width=32"
+  const userName = user ? user.name : ""
+  const userAvatar = user ? user.avatar || "/placeholder.svg?height=32&width=32" : "/placeholder.svg?height=32&width=32"
   const userInitial = userName ? userName.charAt(0) : ""
-  const isAdmin = user?.role === "admin"
+  const isAdmin = user ? user.role === "admin" : false
   const showNotificationBadge = showNotificationCount && notificationCount > 0
+  const isLoggedIn = user !== null && user !== undefined
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -55,7 +53,7 @@ export function Header() {
         </Link>
         <SearchBar />
         <div className="flex items-center gap-4">
-          {user ? (
+          {isLoggedIn ? (
             <>
               <Link href="/publicar">
                 <Button size="sm" className="gap-2">
