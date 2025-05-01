@@ -1,46 +1,36 @@
 "use client"
 
 import { useState } from "react"
-import {
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-} from "@tanstack/react-table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 
 export function DataTable({ columns, data }) {
-  const [sorting, setSorting] = useState([])
-  const [columnFilters, setColumnFilters] = useState([])
-  const [globalFilter, setGlobalFilter] = useState("")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(0)
+  const pageSize = 10
 
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    state: {
-      sorting,
-      columnFilters,
-      globalFilter,
-    },
+  // Filtrar datos basados en el término de búsqueda
+  const filteredData = data.filter((item) => {
+    if (!searchTerm) return true
+
+    // Buscar en todas las propiedades del item
+    return Object.values(item).some((value) => {
+      if (value === null || value === undefined) return false
+      return String(value).toLowerCase().includes(searchTerm.toLowerCase())
+    })
   })
+
+  // Paginar datos
+  const paginatedData = filteredData.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
 
   // Calcular valores para mostrar en la interfaz
   const totalRows = data.length
-  const filteredRows = table.getFilteredRowModel().rows.length
-  const canPreviousPage = table.getCanPreviousPage()
-  const canNextPage = table.getCanNextPage()
+  const filteredRows = filteredData.length
+  const pageCount = Math.ceil(filteredRows / pageSize)
+  const canPreviousPage = currentPage > 0
+  const canNextPage = currentPage < pageCount - 1
 
   return (
     <div>
@@ -49,8 +39,8 @@ export function DataTable({ columns, data }) {
           <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8"
           />
         </div>
@@ -58,23 +48,27 @@ export function DataTable({ columns, data }) {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow>
+              {columns.map((column) => (
+                <TableHead key={column.accessorKey || column.id}>{column.header}</TableHead>
+              ))}
+            </TableRow>
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
+            {paginatedData.length > 0 ? (
+              paginatedData.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {columns.map((column, colIndex) => {
+                    const key = column.accessorKey || column.id
+                    let content = row[key]
+
+                    // Si hay una función cell personalizada, usarla
+                    if (column.cell) {
+                      content = column.cell({ row: { getValue: (k) => row[k] } })
+                    }
+
+                    return <TableCell key={colIndex}>{content}</TableCell>
+                  })}
                 </TableRow>
               ))
             ) : (
@@ -92,10 +86,15 @@ export function DataTable({ columns, data }) {
           Mostrando {filteredRows} de {totalRows} registros
         </div>
         <div className="space-x-2">
-          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!canPreviousPage}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={!canPreviousPage}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!canNextPage}>
+          <Button variant="outline" size="sm" onClick={() => setCurrentPage(currentPage + 1)} disabled={!canNextPage}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

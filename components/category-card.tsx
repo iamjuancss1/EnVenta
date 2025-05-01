@@ -2,14 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
-interface CategoryCardProps {
-  title: string
-  description: string
-  href: string
-  imageSrc?: string
-}
-
-export function CategoryCard({ title, description, href, imageSrc }: CategoryCardProps) {
+export function CategoryCard({ title, description, href, imageSrc }) {
   // Usar una imagen predeterminada si no se proporciona una
   const imageSource = imageSrc || "/placeholder.svg?height=200&width=300"
 

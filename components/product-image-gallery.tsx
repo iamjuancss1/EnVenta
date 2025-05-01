@@ -3,12 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 
-interface ProductImageGalleryProps {
-  images: string[]
-  title: string
-}
-
-export function ProductImageGallery({ images, title }: ProductImageGalleryProps) {
+export function ProductImageGallery({ images, title }) {
   const [selectedImage, setSelectedImage] = useState(0)
 
   // Asegurarse de que hay al menos una imagen
@@ -17,7 +12,7 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
   // Asegurarse de que selectedImage está dentro de los límites
   const safeSelectedIndex = selectedImage < safeImages.length ? selectedImage : 0
   const currentImage = safeImages[safeSelectedIndex]
-  const imageAlt = `${title} - Imagen ${safeSelectedIndex + 1}`
+  const imageAlt = title + " - Imagen " + (safeSelectedIndex + 1)
   const hasMultipleImages = safeImages.length > 1
 
   return (
@@ -30,10 +25,11 @@ export function ProductImageGallery({ images, title }: ProductImageGalleryProps)
         <div className="flex gap-2 overflow-auto pb-2">
           {safeImages.map((image, index) => {
             const isSelected = safeSelectedIndex === index
-            const thumbnailAlt = `${title} - Miniatura ${index + 1}`
-            const thumbnailClasses = `relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border ${
-              isSelected ? "ring-2 ring-primary" : ""
-            }`
+            const thumbnailAlt = title + " - Miniatura " + (index + 1)
+            // Usar concatenación de strings en lugar de template literals
+            const thumbnailClasses =
+              "relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border " +
+              (isSelected ? "ring-2 ring-primary" : "")
 
             return (
               <button key={index} className={thumbnailClasses} onClick={() => setSelectedImage(index)}>

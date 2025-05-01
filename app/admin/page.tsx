@@ -18,26 +18,29 @@ export default function AdminPage() {
   const { user } = useAuth()
   const router = useRouter()
   const [products, setProducts] = useState([])
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Redirigir si el usuario no es administrador
   useEffect(() => {
     if (user) {
-      if (user.role !== "admin") {
+      const userIsAdmin = user.role === "admin"
+      setIsAdmin(userIsAdmin)
+
+      if (!userIsAdmin) {
         router.push("/")
       } else {
         // Cargar productos
         setProducts(getAllProducts())
       }
+      setIsLoading(false)
     } else {
       router.push("/auth/login")
     }
   }, [user, router])
 
-  if (!user) {
-    return null
-  }
-
-  if (user.role !== "admin") {
+  // Si está cargando o no es admin, no mostrar nada
+  if (isLoading || !isAdmin) {
     return null
   }
 
@@ -50,20 +53,34 @@ export default function AdminPage() {
     {
       accessorKey: "title",
       header: "Título",
-      cell: ({ row }) => <div className="max-w-[200px] truncate font-medium">{row.getValue("title")}</div>,
+      cell: ({ row }) => {
+        const title = row.getValue("title")
+        return <div className="max-w-[200px] truncate font-medium">{title}</div>
+      },
     },
     {
-      accessorKey: "category.name",
+      accessorKey: "category",
       header: "Categoría",
+      cell: ({ row }) => {
+        const category = row.getValue("category")
+        return category ? category.name : ""
+      },
     },
     {
       accessorKey: "price",
       header: "Precio",
-      cell: ({ row }) => formatPrice(row.getValue("price")),
+      cell: ({ row }) => {
+        const price = row.getValue("price")
+        return formatPrice(price)
+      },
     },
     {
-      accessorKey: "seller.name",
+      accessorKey: "seller",
       header: "Vendedor",
+      cell: ({ row }) => {
+        const seller = row.getValue("seller")
+        return seller ? seller.name : ""
+      },
     },
     {
       accessorKey: "isNew",
@@ -75,24 +92,28 @@ export default function AdminPage() {
     },
     {
       id: "actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/producto/${row.getValue("id")}`}>
-              <Eye className="h-4 w-4" />
-              <span className="sr-only">Ver</span>
+      header: "Acciones",
+      cell: ({ row }) => {
+        const id = row.getValue("id")
+        return (
+          <div className="flex items-center gap-2">
+            <Link href={"/producto/" + id}>
+              <Button variant="ghost" size="icon">
+                <Eye className="h-4 w-4" />
+                <span className="sr-only">Ver</span>
+              </Button>
             </Link>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-green-600">
-            <CheckCircle className="h-4 w-4" />
-            <span className="sr-only">Aprobar</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-red-600">
-            <XCircle className="h-4 w-4" />
-            <span className="sr-only">Rechazar</span>
-          </Button>
-        </div>
-      ),
+            <Button variant="ghost" size="icon" className="text-green-600">
+              <CheckCircle className="h-4 w-4" />
+              <span className="sr-only">Aprobar</span>
+            </Button>
+            <Button variant="ghost" size="icon" className="text-red-600">
+              <XCircle className="h-4 w-4" />
+              <span className="sr-only">Rechazar</span>
+            </Button>
+          </div>
+        )
+      },
     },
   ]
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -18,32 +18,15 @@ import { Badge } from "@/components/ui/badge"
 
 export function Header() {
   const { user, logout } = useAuth()
-  const [notificationCount, setNotificationCount] = useState(3)
-  const [showNotificationCount, setShowNotificationCount] = useState(true)
-
-  // Escuchar eventos de notificaciones leídas
-  useEffect(() => {
-    function handleNotificationsRead() {
-      setNotificationCount(0)
-      setShowNotificationCount(false)
-    }
-
-    if (typeof window !== "undefined") {
-      window.addEventListener("notificationsRead", handleNotificationsRead)
-      return () => {
-        window.removeEventListener("notificationsRead", handleNotificationsRead)
-      }
-    }
-    return undefined
-  }, [])
+  const [notificationCount] = useState(3)
 
   // Preparar datos seguros para el JSX
   const userName = user ? user.name : ""
   const userAvatar = user ? user.avatar || "/placeholder.svg?height=32&width=32" : "/placeholder.svg?height=32&width=32"
   const userInitial = userName ? userName.charAt(0) : ""
   const isAdmin = user ? user.role === "admin" : false
-  const showNotificationBadge = showNotificationCount && notificationCount > 0
   const isLoggedIn = user !== null && user !== undefined
+  const showNotificationBadge = notificationCount > 0
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -103,14 +86,6 @@ export function Header() {
                       <span>Ayuda</span>
                     </Link>
                   </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Panel de administración</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="flex items-center text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
