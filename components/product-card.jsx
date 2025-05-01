@@ -5,20 +5,19 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 
-export function ProductCard({ product }) {
+export function ProductCard(props) {
   // Verificación de seguridad
-  if (!product) {
+  if (!props || !props.product) {
     return null
   }
+
+  const product = props.product
 
   // Extraer datos de forma segura
   const id = product.id || ""
   const title = product.title || "Producto sin título"
   const price = product.price || 0
-  const originalPrice = product.originalPrice || null
   const location = product.location || "Sin ubicación"
-
-  // Determinar si el producto es nuevo
   const isNew = product.isNew === true
 
   // Obtener la primera imagen o usar una predeterminada
@@ -27,21 +26,7 @@ export function ProductCard({ product }) {
     imageUrl = product.images[0]
   }
 
-  // Calcular descuento fuera del JSX
-  let hasDiscount = false
-  let discountText = ""
-  let formattedOriginalPrice = ""
-
-  if (originalPrice !== null && originalPrice > 0 && price > 0) {
-    if (originalPrice > price) {
-      hasDiscount = true
-      const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
-      discountText = discountPercentage + "% OFF"
-      formattedOriginalPrice = formatPrice(originalPrice)
-    }
-  }
-
-  // Formatear precio actual
+  // Formatear precio
   const formattedPrice = formatPrice(price)
 
   return (
@@ -60,14 +45,6 @@ export function ProductCard({ product }) {
           <div className="space-y-2">
             <h3 className="font-semibold line-clamp-2">{title}</h3>
             <p className="text-2xl font-bold">{formattedPrice}</p>
-            {hasDiscount && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm line-through text-muted-foreground">{formattedOriginalPrice}</span>
-                <Badge variant="outline" className="text-green-600">
-                  {discountText}
-                </Badge>
-              </div>
-            )}
           </div>
         </CardContent>
         <CardFooter className="p-4 pt-0">

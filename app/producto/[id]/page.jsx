@@ -38,31 +38,28 @@ export default function ProductPage({ params }) {
   const id = product.id || ""
   const title = product.title || "Producto sin título"
   const price = product.price || 0
-  const originalPrice = product.originalPrice || null
   const description = product.description || "Sin descripción"
   const location = product.location || "Sin ubicación"
   const isNew = product.isNew === true
-  const categoryName = product.category?.name || "Sin categoría"
-  const categorySlug = product.category?.slug || ""
-  const sellerName = product.seller?.name || "Vendedor"
-  const sellerSince = product.seller?.memberSince || product.seller?.since || "2023"
+
+  let categoryName = "Sin categoría"
+  let categorySlug = ""
+  if (product.category) {
+    categoryName = product.category.name || "Sin categoría"
+    categorySlug = product.category.slug || ""
+  }
+
+  let sellerName = "Vendedor"
+  let sellerSince = "2023"
+  if (product.seller) {
+    sellerName = product.seller.name || "Vendedor"
+    sellerSince = product.seller.memberSince || product.seller.since || "2023"
+  }
 
   // Imágenes
-  const images =
-    product.images && product.images.length > 0 ? product.images : ["/placeholder.svg?height=600&width=600"]
-
-  // Calcular descuento
-  let hasDiscount = false
-  let discountText = ""
-  let formattedOriginalPrice = ""
-
-  if (originalPrice !== null && originalPrice > 0 && price > 0) {
-    if (originalPrice > price) {
-      hasDiscount = true
-      const discountPercentage = Math.round(100 - (price * 100) / originalPrice)
-      discountText = discountPercentage + "% OFF"
-      formattedOriginalPrice = formatPrice(originalPrice)
-    }
+  let images = ["/placeholder.svg?height=600&width=600"]
+  if (product.images && product.images.length > 0) {
+    images = product.images
   }
 
   // Formatear precio actual
@@ -111,14 +108,6 @@ export default function ProductPage({ params }) {
               <h1 className="text-3xl font-bold">{title}</h1>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-3xl font-bold">{formattedPrice}</span>
-                {hasDiscount && (
-                  <>
-                    <span className="text-lg line-through text-muted-foreground">{formattedOriginalPrice}</span>
-                    <Badge variant="outline" className="text-green-600">
-                      {discountText}
-                    </Badge>
-                  </>
-                )}
               </div>
             </div>
 

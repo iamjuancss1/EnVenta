@@ -10,7 +10,7 @@ export function SearchBar() {
   const [searchTerm, setSearchTerm] = useState("")
   const router = useRouter()
 
-  const handleSearch = (e) => {
+  function handleSearch(e) {
     e.preventDefault()
 
     // Validar que el término de búsqueda no esté vacío
@@ -24,7 +24,7 @@ export function SearchBar() {
     }
   }
 
-  const handleChange = (e) => {
+  function handleChange(e) {
     setSearchTerm(e.target.value)
   }
 
